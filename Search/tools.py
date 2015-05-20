@@ -30,7 +30,7 @@ def conv_times(t0, tof, seq):
 	if i == 0:
 	    x = new_t0
 	else:
-	    x = state_rosetta.T_SCALE[seq[i]][t0]
+	    x = state_rosetta.T_SCALE[seq[i]][tof[i-1]]
 	y = state_rosetta.T_SCALE[seq[i+1]][tof[i]]
 	new_tof.append(y-x)
 

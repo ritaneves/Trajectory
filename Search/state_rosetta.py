@@ -65,20 +65,12 @@ T_MAX = T0[-1] + 4000.
 def set_t_res(t_res):
     global T_RES
     global T_SCALE
-    global T_SCALE_INT
     T_RES = t_res
     T_SCALE = {name: np.arange(T_MIN, T_MAX, tools.PLANETS[name].compute_period(kep.epoch(0))/+
 kep.DAY2SEC/T_RES) for name in PLANET_NAMES}
 
-    T_SCALE_INT = [[]]*len(PLANET_NAMES)
-    for i in range(0, len(PLANET_NAMES)):
-        T_SCALE_INT[i] = []
-        for time in T_SCALE[PLANET_NAMES[i]]:
-	    T_SCALE_INT[i].append(int(time))
-
 #32 = 360/11.25
 set_t_res(32)
-
 
 
 #Ephemeris Calculations?
@@ -90,13 +82,12 @@ for i in range(0, len(PLANET_NAMES)):
 	r1, v1 = tools.PLANETS[PLANET_NAMES[i]].eph(time)
 	EPH[i].append([r1, v1])
 
-MAX_EPOCH = 10*365.25
+MAX_EPOCH = T_SCALE['67p'][-2]
 #MAX_FLYBYS = 5
 MAX_DV = 5000.
 MAX_DV_LAUNCH = 5000.
 MOVE_TYPE = tools.enum('T0', 'PLANET', 'TOF')
 MOVES = {
-    #MOVE_TYPE.T0: [t for t in T_SCALE['earth'] if t >= T0[0] and t <= T0[1]], #PERHAPS CHANGE THIS AS WELL?
     MOVE_TYPE.T0: [i for i in range(0, len([t for t in T_SCALE['earth'] if t >= T0[0] and t <= T0[1]]))],
     MOVE_TYPE.PLANET: PLANET_NAMES,
     MOVE_TYPE.TOF: None, # defined on the fly
@@ -105,9 +96,7 @@ MOVES = {
 #Fix T0
 def fix_first_move(fixit):
     if fixit:
-        MOVES[MOVE_TYPE.T0] = [9]
-	#print MOVES[MOVE_TYPE.T0]
-	#sys.exit(0)
+        MOVES[MOVE_TYPE.T0] = [10]
     else:
         MOVES[MOVE_TYPE.T0] = [i for i in range(0, len([t for t in T_SCALE['earth'] if t >= T0[0] and t <= T0[1]]))]
         
@@ -129,27 +118,14 @@ class State():
             return []
         if self.next_move is MOVE_TYPE.TOF:
             min_tof, max_tof = PLANET_TOF[self.seq[-2], self.seq[-1]] #not index
-
-#	    print 'HERE', len(T_SCALE[self.seq[-1]])
-#	    if len(self.tof) > 0:
-#		print 'LEN', self.tof[-1]
 	    if len(self.tof) < 1:
 		cur_t = T_SCALE['earth'][self.t0]
-	    else:
-		#print self.seq, self.tof, 'ERROE HERE'   
+	    else: 
 		cur_t = T_SCALE[self.seq[-2]][self.tof[-1]]
-	    #elif len(self.tof) == 2:
-	#	cur_t = T_SCALE[self.seq[-1]][self.tof[-1]] + T_SCALE[self.seq[-2]][self.tof[-2]]
-	 #   else: 
-	#	sys.exit(0)	
-
-	    #intensive debugging
-#	    print cur_t, 'wht im doing'
-#	    print T_SCALE['earth'][self.t0]
-	    	 
+	   	    	 
             lb = bisect.bisect(T_SCALE[self.seq[-1]], cur_t + min_tof)
             ub = bisect.bisect(T_SCALE[self.seq[-1]], cur_t + max_tof)
-#	    print [i for i in range(lb, ub)]
+
 	    return [i for i in range(lb, ub)] #return upper and lower bounds on t2!! - moves that can be done on P2
 	else:
             return MOVES[self.next_move]
@@ -168,13 +144,10 @@ class State():
 	    self.seq.append(move)
             self.next_move = MOVE_TYPE.TOF
             return
-        elif self.next_move == MOVE_TYPE.TOF:
-	    #perhaps not append like this? we get not a tof, but a t_n...
-#	    print move, len(T_SCALE[self.seq[-1]])	    
+        elif self.next_move == MOVE_TYPE.TOF:  
 	    self.tof.append(move)
 	    t2 = self.tof[-1]
-#	    print len(self.tof)
-#	    print T_SCALE[self.seq[-1]][self.tof[-1]], len(self.tof)
+
 	    if len(self.tof) > 1:
 	        t1 = self.tof[-2]
 	    else:
@@ -187,11 +160,9 @@ class State():
 	    i = PLANET_NAMES.index(self.seq[-2])
 	    j = PLANET_NAMES.index(self.seq[-1])
 
-	    #nada errado aqui no tools...
 	    dv, vrel_out = tools.lambert_leg(self.seq[-2], self.seq[-1], i, j, t1, t2, tof,
                                              vrel=self.vrel,
                                              rendezvous=self.isfinal())
-	    #sys.exit(0)
             if len(self.tof) == 1:
                 dv = max(dv - MAX_DV_LAUNCH, 0)
             self.dv += dv
@@ -202,7 +173,8 @@ class State():
           
     #State is leaf, either because of constraints or because of goal reached            
     def isterminal(self):
-#	print self.seq, self.tof
+#	if len(self.tof) == MAX_FLYBYS:
+#	    return True
         if self.dv is not None and self.dv > MAX_DV:
             return True
 	if len(self.seq)-len(self.tof) == 1:
@@ -248,10 +220,11 @@ class State():
         
     def __repr__(self):
         s = '{:8.2f} m/s  '.format(self.dv)
-        #s += '{:7.2f} days  '.format(sum(self.tof))
-        #if self.t0 is not None:
-        #     s += '{:8.2f} mjd2000  '.format(self.t0)
-        s += '-'.join([p[0] for p in self.seq]) + '  '
-	s += ''.join(str(self.tof))
-       # s += '[' + ', '.join(['{:.2f}'.format(t) for t in self.tof]) + ']'
+	t0, tof = tools.conv_times(self.t0, self.tof, self.seq)
+        s += '{:7.2f} days  '.format(sum(self.tof))
+        if self.t0 is not None:
+            s += '{:8.2f} mjd2000  '.format(t0)
+            s += '-'.join([p[0] for p in self.seq]) + '  '
+	    s += ''.join(str(tof))
+            s += '[' + ', '.join(['{:.2f}'.format(t) for t in self.tof]) + ']'
         return s   
