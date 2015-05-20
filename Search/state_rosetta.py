@@ -58,8 +58,9 @@ for p in tools.PLANETS.values():
 PLANET_NAMES = ['venus', 'earth', 'mars', 'jupiter', '67p']
 
 T0 = (1460., 1825.) # launch window
+MAX_MISSION_TIME = 4095
 T_MIN = T0[0]
-T_MAX = T0[-1] + 4000.
+T_MAX = T0[-1] + MAX_MISSION_TIME.
 
 #T_res is the time sampling interval
 def set_t_res(t_res):
@@ -178,10 +179,10 @@ class State():
         if self.dv is not None and self.dv > MAX_DV:
             return True
 	if len(self.seq)-len(self.tof) == 1:
-            if self.t0 is not None and (len(self.tof) > 1 and T_SCALE[self.seq[-1]][self.tof[-1]] > MAX_EPOCH):
+            if self.t0 is not None and (len(self.tof) > 1 and (T_SCALE[self.seq[-1]][self.tof[-1]] - T_SCALE['earth'][self.t0]) > MAX_MISSION_TIME):
                 return True
 	elif len(self.seq)-len(self.tof) == 2:
-	    if self.t0 is not None and (len(self.tof) > 1 and T_SCALE[self.seq[-2]][self.tof[-1]] > MAX_EPOCH):
+	    if self.t0 is not None and (len(self.tof) > 1 and (T_SCALE[self.seq[-2]][self.tof[-1]] - T_SCALE['earth'][self.t0]) > MAX_MISSION_TIME):
 		return True
         if self.isfinal():
             return True
