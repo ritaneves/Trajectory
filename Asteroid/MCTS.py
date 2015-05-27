@@ -23,10 +23,6 @@ class Node:
         self.state = state.copy()
         self.c_P = c_P
 
-    def update(self, value, N=1, i=0):
-        self.n += 1          
-        self.V = max(self.V, value)
-
     def expand(self, state, move):
         n = Node(parent=self, state=state, last_move=move, c_P=self.c_P)
         self.untried_moves.remove(move)
@@ -90,15 +86,14 @@ def uct(option, c_P, N):
         # backpropagate
         value = 0
         if node.state.isterminal() and node.state.dv == node.state.dv: # TODO check why dv would be NaN?
-            value = max(MAX_DV - node.state.dv, 0.)/ MAX_DV
-           
+            print node.state
+	           
             if best is None or len(node.state.seq) > best:
                 best = len(node.state.seq) - 1
 		f.write(str(best))
 		
         done = False
         while node is not None:
-            node.update(value) #, N=N, i=n_rollouts)
             if node.children == [] and node.untried_moves == []:
                 if node.parent is None:
                     done = True
@@ -108,12 +103,13 @@ def uct(option, c_P, N):
         if done:
             break
 
+	print n_rollouts
     f.close()
     return best
 
    
 if __name__=='__main__':
     
-    uct(option = 1, c_P=0.015, N = 100000)
+    uct(option = 1, c_P=0.015, N = 10000000)
 
 

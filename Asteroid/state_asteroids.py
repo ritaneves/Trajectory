@@ -39,7 +39,7 @@ for i in range(0, len(ASTEROID_NAMES)):
 
 MOVE_TYPE = tools.enum('T0', 'ASTEROID', 'TOF')
 MOVES = {
-    MOVE_TYPE.T0: [0],
+    MOVE_TYPE.T0: [1],
     MOVE_TYPE.ASTEROID: ASTEROID_NAMES,
     MOVE_TYPE.TOF: None, # defined on the fly
 }
@@ -79,9 +79,6 @@ class State():
 
     #Get to next state (planet or TOF)
     def move(self, move):
-	# assert move in self.moves(), '%s is not in current move list' % move 
-        # assert not self.isterminal(), 'current state %s is terminal' % self
-        # assert not self.final(), 'current state %s is final' % self
         if self.next_move == MOVE_TYPE.T0: #does not matter
             self.t0 = move
             self.next_move = MOVE_TYPE.ASTEROID
@@ -122,7 +119,7 @@ class State():
             return True
         else:
             self.mass = self.mass*math.exp(-self.dv/(3000*9.81))
-        return False
+            return False
 
     def random_move(self, moves = []):
         if moves == []:
@@ -137,18 +134,21 @@ class State():
                 if self.t0 is not None and (len(self.tof) > 1 and (T_SCALE[self.seq[-1]][self.tof[-1]] - T_SCALE[658][self.t0]) > MAX_MISSION_TIME):
                     moves.remove(move)
                     if moves == []:
+			print 'a'
                         sys.exit()
                     random_move(self, moves)
             elif len(self.seq)-len(self.tof) == 2:
                 if self.t0 is not None and (len(self.tof) > 1 and (T_SCALE[self.seq[-2]][self.tof[-1]] - T_SCALE[658][self.t0]) > MAX_MISSION_TIME):
                     moves.remove(move)
                     if moves == []:
+			print 'b'
                         sys.exit()
                     random_move(self, moves)
         elif self.next_move == MOVE_TYPE.ASTEROID:   
             if move in self.seq:
                 moves.remove(move)
                 if moves == []:
+		    print 'c'
                     sys.exit()
                 random_move(self, moves)
 
