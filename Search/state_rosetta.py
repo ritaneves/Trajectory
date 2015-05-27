@@ -58,7 +58,7 @@ for p in tools.PLANETS.values():
 PLANET_NAMES = ['venus', 'earth', 'mars', 'jupiter', '67p']
 
 T0 = (1460., 1825.) # launch window
-MAX_MISSION_TIME = 3400
+MAX_MISSION_TIME = 4000
 T_MIN = T0[0]
 T_MAX = T0[-1] + MAX_MISSION_TIME
 
@@ -85,7 +85,7 @@ for i in range(0, len(PLANET_NAMES)):
 
 #MAX_EPOCH = T_SCALE['67p'][-2]
 #MAX_FLYBYS = 5
-MAX_DV = 10000.
+MAX_DV = 20000.
 MAX_DV_LAUNCH = 5000.
 MOVE_TYPE = tools.enum('T0', 'PLANET', 'TOF')
 MOVES = {
