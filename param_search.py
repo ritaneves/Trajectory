@@ -11,10 +11,11 @@ import pickle
 import multiprocessing
 
 #from pykep_search.state_eph_grid import State, MOVE_TYPE, MAX_DV, fix_first_move, set_t_res
-from state_rosetta import State, MOVE_TYPE, MAX_DV, fix_first_move, set_t_res
+from state_cassini import State, MOVE_TYPE, MAX_DV, fix_first_move, set_t_res
 from tools import pretty_time
 
 from MCTS import uct
+
 
 def uct_run(c_P, N=50000):
     np.random.seed()
@@ -27,7 +28,7 @@ if __name__=='__main__':
         
         # define problem
         set_t_res(32)
-        fix_first_move(True) 
+        fix_first_move(True) #TRY THIS WAY
 
         from multiprocessing import Pool, Value
         from functools import partial
@@ -48,4 +49,4 @@ if __name__=='__main__':
             res.append(r)
             
             if (i+1) % 100 == 0:
-                pickle.dump(res, open('param_search_rosetta_partial_%d.pkl' % n_legs, 'wb'))
+                pickle.dump(res, open('param_search_cassini_partial_%d.pkl' % n_legs, 'wb'))
