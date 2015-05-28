@@ -10,7 +10,6 @@ import math
 from state_asteroids import State, MOVE_TYPE
 from tools import pretty_time, conv_times
 
-MAX_DV = 10000
 class Node:
     def __init__(self, parent=None, state=None, last_move=None, c_P=0.0007):
         self.Q = 0 # sum of values
@@ -85,13 +84,12 @@ def uct(option, c_P, N):
 
         # backpropagate
         value = 0
-        if node.state.isterminal() and node.state.dv == node.state.dv: # TODO check why dv would be NaN?
-            print node.state
-	           
+        if node.state.isterminal():
+	   	           
             if best is None or len(node.state.seq) > best:
                 best = len(node.state.seq) - 1
 		f.write(str(best))
-		
+	
         done = False
         while node is not None:
             if node.children == [] and node.untried_moves == []:
@@ -100,10 +98,11 @@ def uct(option, c_P, N):
                     break
                 node.parent.children.remove(node)
             node = node.parent
+
         if done:
+	    print 'break'
             break
 
-	print n_rollouts
     f.close()
     return best
 

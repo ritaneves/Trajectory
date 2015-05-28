@@ -44,7 +44,7 @@ def conv_times(t0, tof, seq):
     return new_t0, new_tof     
 
 
-def lambert_leg(P1, P2, i, j, t1, t2, tof, vrel=None, dv_launch=0., rendezvous=False):
+def lambert_leg(P1, P2, i, j, t1, t2, tof, vrel=None, dv_launch=0.):
     """Compute a lambert leg from planet to planet.
     Arguments:
     p1 -- starting planet (str or PyKEP.planet object)
@@ -68,14 +68,16 @@ def lambert_leg(P1, P2, i, j, t1, t2, tof, vrel=None, dv_launch=0., rendezvous=F
     r2 = state_asteroids.EPH[j][t2][0]
     v2 = state_asteroids.EPH[j][t2][1]
 
-    lambert = kep.lambert_problem(r1, r2, tof * kep.DAY2SEC, p1.mu_central_body, False, 0)
+    lambert = kep.lambert_problem(r1, r2, tof * kep.DAY2SEC, ast1.mu_central_body, False, 0)
 
     vrel_in = tuple(map(lambda x, y: x - y, lambert.get_v1()[0], v1))
     vrel_out = tuple(map(lambda x, y: x - y, lambert.get_v2()[0], v2))
 
     dv_lambert = np.linalg.norm(vrel_out) + np.linalg.norm(vrel_in)
 
-    a, _, _, dv_damon = kep.damon(vrel_in, vrel_out, tof*kep.DAY2SEC)
-    m_star = kep.max_start_mass(np.linalg.norm(a), dv_damon, T_max, Isp)
-        
+#    a, _, _, dv_damon = kep.damon(vrel_in, vrel_out, tof*kep.DAY2SEC)
+    a = 1
+    dv_damon = 2
+#    m_star = kep.max_start_mass(np.linalg.norm(a), dv_damon, T_max, Isp)
+    m_star = 3000    
     return dv_lambert, dv_damon, m_star

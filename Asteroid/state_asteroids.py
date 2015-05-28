@@ -47,7 +47,7 @@ MOVES = {
 #Rosetta State    
 class State():
     
-    def __init__(self, seq=[658], t0=None, tof=[], vrel=None, dv=0, mass=2000, next_move=MOVE_TYPE.T0):
+    def __init__(self, seq=[658], t0=None, tof=[], vrel=None, dv=[], mass=2000, next_move=MOVE_TYPE.T0):
         self.seq = copy.copy(seq) #Path of Planets
         self.tof = copy.copy(tof) #Path of TOF
         self.t0 = t0
@@ -59,8 +59,6 @@ class State():
         
     #Get Possible Moves
     def moves(self):
-        if self.isterminal():
-            return []
         if self.next_move is MOVE_TYPE.TOF:
             min_tof = ASTEROID_TOF[0]
             max_tof = ASTEROID_TOF[-1]
@@ -104,9 +102,8 @@ class State():
 	    j = ASTEROID_NAMES.index(self.seq[-1])
 
 	    dv_lambert, dv_damon, m_star = tools.lambert_leg(self.seq[-2], self.seq[-1], i, j, t1, t2, tof,
-                                             vrel=self.vrel,
-                                             rendezvous=self.isfinal())   
-            self.dv.append(dv)
+                                             vrel=self.vrel)   
+            self.dv.append(dv_lambert)
 	    self.m_star = m_star
            
             return
@@ -170,10 +167,11 @@ class State():
         return hash(self.__key())    
         
     def __repr__(self):
-        s = '{:8.2f} m/s  '.format(self.dv)
+	s = str(self.dv)
 	t0, tof = tools.conv_times(self.t0, self.tof, self.seq)
         if self.t0 is not None:
             s += '{:8.2f} mjd2000  '.format(t0)
-            s += '-'.join([p[0] for p in self.seq]) + '  '
+            s += str(self.seq)
+	    #s += '-'.join([p[0] for p in self.seq]) + '  '
 	    s += '[' + ', '.join(['{:.2f}'.format(t) for t in tof]) + ']'
         return s   
