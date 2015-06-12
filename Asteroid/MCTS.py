@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-
+import sys
 import time
 import random
 import numpy as np
 import functools
 import bisect
 import math
+import copy
 
 from state_asteroids import State, MOVE_TYPE
 from tools import pretty_time, conv_times
@@ -78,17 +79,21 @@ def uct(option, c_P, N):
                 n_legs += 1
             state = node.state.copy()
             state.move(move)
-            node = node.expand(state, move)
+	    node = node.expand(state, move)
+	    
+            if node.state.next_move == MOVE_TYPE.ASTEROID and node.state.tof != []:		
+	        if node.state.isterminal():
+#		    print node.state.mass
+		    break
 
-	#print 'expand', state.seq, state.t0, state.tof
+	#backpropagate
+           	           
+        if best is None or (len(node.state.seq)-1) > best:
+            best = len(node.state.seq) - 1
+	    seq = node.state.seq[0:-1]
+#	    print node.state
 
-        # backpropagate
-        value = 0
-        if node.state.isterminal():
-	   	           
-            if best is None or len(node.state.seq) > best:
-                best = len(node.state.seq) - 1
-		f.write(str(best))
+	    f.write(str(best) + ' ' + str(node.state) + '\n')
 	
         done = False
         while node is not None:

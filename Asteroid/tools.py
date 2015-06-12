@@ -75,9 +75,7 @@ def lambert_leg(P1, P2, i, j, t1, t2, tof, vrel=None, dv_launch=0.):
 
     dv_lambert = np.linalg.norm(vrel_out) + np.linalg.norm(vrel_in)
 
-#    a, _, _, dv_damon = kep.damon(vrel_in, vrel_out, tof*kep.DAY2SEC)
-    a = 1
-    dv_damon = 2
-#    m_star = kep.max_start_mass(np.linalg.norm(a), dv_damon, T_max, Isp)
-    m_star = 3000    
+    a, _, _, dv_damon = kep.damon(vrel_in, vrel_out, tof*kep.DAY2SEC)
+    m_star = kep.max_start_mass(np.linalg.norm(a), dv_damon, T_max, Isp)
+    
     return dv_lambert, dv_damon, m_star

@@ -47,15 +47,16 @@ MOVES = {
 #Rosetta State    
 class State():
     
-    def __init__(self, seq=[658], t0=None, tof=[], vrel=None, dv=[], mass=2000, next_move=MOVE_TYPE.T0):
+    def __init__(self, seq=[658], t0=None, tof=[], vrel=None, dv=[], dv_damon = [], mass=2000, m_star = 0, next_move=MOVE_TYPE.T0):
         self.seq = copy.copy(seq) #Path of Planets
         self.tof = copy.copy(tof) #Path of TOF
         self.t0 = t0
         self.mass = mass
         self.vrel = copy.copy(vrel)
         self.dv = copy.copy(dv)
+	self.dv_damon = copy.copy(dv_damon)
         self.next_move = next_move
-	self.m_star = 0
+	self.m_star = copy.copy(m_star)
         
     #Get Possible Moves
     def moves(self):
@@ -105,7 +106,7 @@ class State():
                                              vrel=self.vrel)   
             self.dv.append(dv_lambert)
 	    self.m_star = m_star
-           
+            self.dv_damon.append(dv_damon)
             return
         else:
             print 'unknown move type %s' % self.next_move
@@ -114,9 +115,8 @@ class State():
     def isterminal(self): #CONDITIONS ON MASS, NOT ON MISSION TIME
 	if self.mass > self.m_star: #M STAR!!!
             return True
-        else:
-            self.mass = self.mass*math.exp(-self.dv/(3000*9.81))
-            return False
+	self.mass = self.mass*math.exp(-self.dv[-1]/(Isp*g))
+        return False
 
     def random_move(self, moves = []):
         if moves == []:
@@ -154,7 +154,7 @@ class State():
         return move
 
     def copy(self):
-        return State(seq=self.seq, t0=self.t0, tof=self.tof, vrel=self.vrel, dv=self.dv, next_move=self.next_move)
+        return State(seq=self.seq, t0=self.t0, tof=self.tof, vrel=self.vrel, dv=self.dv, next_move=self.next_move, m_star=self.m_star, mass=self.mass, dv_damon=self.dv_damon)
 
     def __key(self): #sorted
         return (self.seq, self.t0, self.tof)
@@ -167,11 +167,14 @@ class State():
         return hash(self.__key())    
         
     def __repr__(self):
-	s = str(self.dv)
+
 	t0, tof = tools.conv_times(self.t0, self.tof, self.seq)
         if self.t0 is not None:
-            s += '{:8.2f} mjd2000  '.format(t0)
-            s += str(self.seq)
-	    #s += '-'.join([p[0] for p in self.seq]) + '  '
-	    s += '[' + ', '.join(['{:.2f}'.format(t) for t in tof]) + ']'
-        return s   
+            s = '{:8.2f} mjd2000  '.format(t0)
+            s += str(self.seq) + ' '
+	    #s += '-'.join([p[0] for p in self.seq]) + ' '
+	    s += '[' + ', '.join(['{:.2f}'.format(t) for t in tof]) + ']' + ' '
+        s += str(str('M_star = ') + str(self.m_star)) + ' Mass: ' + str(self.mass)
+	if len(self.dv) > 0 and len(self.dv_damon) > 0:
+	    s += ' DV Lam: ' + str(self.dv[-1]) + ' DV Dam: ' + str(self.dv_damon[-1])
+	return s   
