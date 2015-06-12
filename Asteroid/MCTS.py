@@ -29,6 +29,10 @@ class Node:
         self.children.append(n)
         return n
 
+    def update(self, value):
+	self.n += 1
+	self.V = max(self.V, value)
+
     def select(self, choice):
 	if choice == 1: #random
 	    return random.choice(self.children)
@@ -91,12 +95,14 @@ def uct(option, c_P, N):
         if best is None or (len(node.state.seq)-1) > best:
             best = len(node.state.seq) - 1
 	    seq = node.state.seq[0:-1]
-#	    print node.state
 
 	    f.write(str(best) + ' ' + str(node.state) + '\n')
 	
         done = False
-        while node is not None:
+	value = (len(node.state.seq)-1)*(1/85) + (-1/85)
+        
+	while node is not None:
+	    node.update(value)
             if node.children == [] and node.untried_moves == []:
                 if node.parent is None:
                     done = True
@@ -114,6 +120,6 @@ def uct(option, c_P, N):
    
 if __name__=='__main__':
     
-    uct(option = 1, c_P=0.015, N = 10000000)
+    uct(option = 3, c_P=0.008, N = 10000000)
 
 
