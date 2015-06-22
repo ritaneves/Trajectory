@@ -58,7 +58,7 @@ def uct(option, c_P, N):
     n_legs = 0
     start = time.time()
 
-    f = open('test1.txt', 'w')
+ #   f = open('test1.txt', 'w')
     rootstate = State()
     root = Node(state=rootstate, c_P=c_P)
 
@@ -96,7 +96,7 @@ def uct(option, c_P, N):
             best = len(node.state.seq) - 1
 	    seq = node.state.seq[0:-1]
 
-	    f.write(str(best) + ' ' + str(node.state) + '\n')
+#	    f.write(str(best) + ' ' + str(node.state) + '\n')
 	
         done = False
 	value = (len(node.state.seq)-1)*(1/85) + (-1/85)
@@ -114,12 +114,12 @@ def uct(option, c_P, N):
 	    print 'break'
             break
 
-    f.close()
-    return best
+    #f.close()
+    return best, n_rollouts
 
    
 if __name__=='__main__':
     
-    uct(option = 3, c_P=0.008, N = 1000000)
+    length, n_roll = uct(option = 3, c_P=0.008, N = 1000000)
 
 

@@ -58,7 +58,7 @@ def uct(option, c_P, N):
     n_legs = 0
     start = time.time()
 
-    f = open('test1.txt', 'w')
+    f = open('rand1M.txt', 'w')
     rootstate = State()
     root = Node(state=rootstate, c_P=c_P)
 
@@ -120,6 +120,6 @@ def uct(option, c_P, N):
    
 if __name__=='__main__':
     
-    uct(option = 3, c_P=0.008, N = 1000000)
+    uct(option = 1, c_P=0.008, N = 1000000)
 
 

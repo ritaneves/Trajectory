@@ -99,7 +99,7 @@ def uct(option, c_P, N):
 	    f.write(str(best) + ' ' + str(node.state) + '\n')
 	
         done = False
-	value = (len(node.state.seq)-1)*(1/85) + (-1/85)
+	value = 0.5*((len(node.state.seq)-1)*(1/85) + (-1/85)) + 0.5*(max(10000 - node.state.dv, 0)/10000)
         
 	while node is not None:
 	    node.update(value)
