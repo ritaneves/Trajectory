@@ -69,8 +69,8 @@ def set_t_res(t_res):
     T_RES = t_res
     T_SCALE = {name: np.arange(T_MIN, T_MAX, tools.PLANETS[name].compute_period(kep.epoch(0))/+
 kep.DAY2SEC/T_RES) for name in PLANET_NAMES}
-    print T_SCALE['mars']
-    sys.exit()
+
+
 #32 = 360/11.25
 set_t_res(32)
 

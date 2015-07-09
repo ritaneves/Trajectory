@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 import sys
 import time
 import random
@@ -58,7 +59,7 @@ def uct(option, c_P, N):
     n_legs = 0
     start = time.time()
 
-    f = open('Results/rand1M.txt', 'w')
+    f = open('Results/uct1M.txt', 'w')
     rootstate = State()
     root = Node(state=rootstate, c_P=c_P)
 
@@ -103,7 +104,7 @@ def uct(option, c_P, N):
 	    f.write(str(best) + ' ' + str(node.state) + '\n')
 	
         done = False
-	value = (len(node.state.seq)-1)*(1/85) + (-1/85)
+	value = (len(node.state.seq)-1)*(1/66) + (-1/66)
         
 	while node is not None:
 	    node.update(value)
@@ -122,4 +123,4 @@ def uct(option, c_P, N):
    
 if __name__=='__main__':
     
-    uct(option = 1, c_P=2, N = 1000000)
+    uct(option = 2, c_P=2, N = 1000000)
