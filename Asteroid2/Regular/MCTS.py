@@ -58,7 +58,7 @@ def uct(option, c_P, N):
     n_legs = 0
     start = time.time()
 
-    f = open('test1.txt', 'w')
+    f = open('Results/rand1M.txt', 'w')
     rootstate = State()
     root = Node(state=rootstate, c_P=c_P)
 
@@ -84,18 +84,15 @@ def uct(option, c_P, N):
             state = node.state.copy()
             state.move(move)
 	    node = node.expand(state, move)
-	    
-            if node.state.next_move == MOVE_TYPE.ASTEROID and node.state.tof != []:		
-	        if node.state.isterminal():
-#		    print node.state.mass
+
+	    if node.state.next_move == MOVE_TYPE.ASTEROID and node.state.tof != []:
+		if node.state.isterminal():
 		    break
 
-	#backpropagate
-           	           
+	#Backpropagate
+	           	           
         if best is None or (len(node.state.seq)-1) > best:
             best = len(node.state.seq) - 1
-	    seq = node.state.seq[0:-1]
-
 	    f.write(str(best) + ' ' + str(node.state) + '\n')
 	
         done = False
@@ -110,9 +107,7 @@ def uct(option, c_P, N):
                 node.parent.children.remove(node)
             node = node.parent
 
-        if done:
-	    print 'break'
-            break
+	#There was stuff here
 
     f.close()
     return best
@@ -120,6 +115,4 @@ def uct(option, c_P, N):
    
 if __name__=='__main__':
     
-    uct(option = 3, c_P=0.008, N = 1000000)
-
-
+    uct(option = 1, c_P=2, N = 1000000)
